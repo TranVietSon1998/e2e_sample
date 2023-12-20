@@ -1,0 +1,45 @@
+package com.qa.utils;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.ios.IOSDriver;
+
+import java.io.IOException;
+import java.net.URL;
+import java.time.Duration;
+
+public class DriverManager {
+    private static ThreadLocal<AppiumDriver> driver = new ThreadLocal<>();
+    TestUtils utils = new TestUtils();
+
+    public AppiumDriver getDriver(){
+        return driver.get();
+    }
+
+    public void setDriver(AppiumDriver driver2){
+        driver.set(driver2);
+    }
+
+    public void initializeDriver() throws Exception {
+        AppiumDriver driver = null;
+
+        if(driver == null){
+            try{
+                utils.log().info("initializing Appium driver");
+                URL url = new URL("http://127.0.0.1:4723");
+                        driver = new IOSDriver(url, new CapabilitiesManager().getCaps());
+                driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
+                if(driver == null){
+                    throw new Exception("driver is null. ABORT!!!");
+                }
+                utils.log().info("Driver is initialized");
+                this.driver.set(driver);
+            } catch (IOException e) {
+                e.printStackTrace();
+                utils.log().fatal("Driver initialization failure. ABORT !!!!" + e.toString());
+                throw e;
+            }
+        }
+
+    }
+
+}
